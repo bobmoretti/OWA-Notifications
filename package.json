@@ -1,6 +1,6 @@
 {
   "name": "owa-notifications",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "Firefox extension: smart desktop notifications for Outlook Web App",
   "private": true,
   "scripts": {
