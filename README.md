@@ -81,7 +81,7 @@ Every permission is justified below. We request the **minimum** set required.
 ## 🛡️ Security Model
 
 ### What the extension CAN access
-- DOM elements on pages matching OWA URL patterns (`*/owa/*`, `outlook.office365.com`, etc.)
+- DOM elements on pages matching OWA URL patterns (`*/owa/*`, `outlook.office365.com`, `outlook.cloud.microsoft`, etc.)
 - Unread count badge numbers displayed in the OWA folder tree
 - Firefox's local storage API (for settings persistence)
 - Firefox's notification API (for desktop alerts)
@@ -200,6 +200,7 @@ A: Yes. No data leaves the browser. No external connections are made. The extens
 | Outlook 365 (outlook.office365.com) | ✅ Supported |
 | Outlook.com (outlook.live.com) | ✅ Supported |
 | New Outlook (outlook.office.com) | ✅ Supported |
+| New Outlook cloud (outlook.cloud.microsoft) | ✅ Supported |
 | Firefox 128+ | ✅ Required |
 | Outlook Desktop App | ❌ Not applicable (browser extension) |
 
