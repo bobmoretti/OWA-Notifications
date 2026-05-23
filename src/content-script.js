@@ -255,6 +255,9 @@ function getUnreadFolders() {
     const uniqueFolders = new Map();
     treeItems.forEach(item => {
       let name = "";
+      let count = 0;
+
+      // Old OWA / Office 365: folder name from child elements
       const folderSpan = item.querySelector('[id*=".folder"]');
       if (folderSpan && folderSpan.title) {
         name = folderSpan.title;
@@ -264,22 +267,29 @@ function getUnreadFolders() {
       }
 
       if (name) {
-        let count = 0;
         const ucountSpan = item.querySelector('[id*=".ucount"]');
         if (ucountSpan && ucountSpan.textContent) {
           count = extractNumber(ucountSpan.textContent);
         }
-
         if (count === 0) {
           const badgeSpan = item.querySelector('div[class*="_n_44"] span, div[class*="ms-bg-color-neutralLighter"] span');
           if (badgeSpan && badgeSpan.textContent) {
             count = extractNumber(badgeSpan.textContent);
           }
         }
-
-        if (count > 0) {
-          uniqueFolders.set(name, count);
+      } else {
+        // New Outlook (outlook.cloud.microsoft): title attr on treeitem itself
+        // e.g. "Inbox - 397 items (384 unread)" or "Sent Items - 0 items"
+        const titleAttr = item.getAttribute('title') || '';
+        const m = titleAttr.match(/^(.+?) - \d+ items(?: \((\d+) unread\))?$/);
+        if (m) {
+          name = m[1].trim();
+          count = m[2] ? parseInt(m[2], 10) : 0;
         }
+      }
+
+      if (name && count > 0) {
+        uniqueFolders.set(name, count);
       }
     });
 
@@ -453,30 +463,52 @@ function scanFolders() {
   const others = new Set();
 
   const favoritesContainer = document.getElementById("MailFolderPane.FavoritesFolders");
-
-  const processItem = (item, set) => {
-    let name = "";
-    const folderSpan = item.querySelector('[id*=".folder"]');
-    if (folderSpan && folderSpan.title) {
-      name = folderSpan.title;
-    } else {
-      const titleSpan = item.querySelector('span[title]');
-      if (titleSpan) name = titleSpan.title;
-    }
-
-    if (name && name.trim().length > 0 && name !== "Favorites" && name !== "Folders") {
-      set.add(name);
-    }
-  };
-
   const allTreeItems = document.querySelectorAll('[role="treeitem"]');
-  allTreeItems.forEach(item => {
-    if (favoritesContainer && favoritesContainer.contains(item)) {
-      processItem(item, favorites);
-    } else {
-      processItem(item, others);
-    }
-  });
+
+  if (favoritesContainer) {
+    // Old OWA / Office 365: favorites determined by container element
+    const processItem = (item, set) => {
+      let name = "";
+      const folderSpan = item.querySelector('[id*=".folder"]');
+      if (folderSpan && folderSpan.title) {
+        name = folderSpan.title;
+      } else {
+        const titleSpan = item.querySelector('span[title]');
+        if (titleSpan) name = titleSpan.title;
+      }
+      if (name && name.trim().length > 0 && name !== "Favorites" && name !== "Folders") {
+        set.add(name);
+      }
+    };
+    allTreeItems.forEach(item => {
+      if (favoritesContainer.contains(item)) {
+        processItem(item, favorites);
+      } else {
+        processItem(item, others);
+      }
+    });
+  } else {
+    // New Outlook (outlook.cloud.microsoft): folder name from title attr on treeitem
+    // Title format: "FolderName - N items (M unread)" or "FolderName - 0 items"
+    // Group headers (e.g. "Favorites", email address) have no " - N items" pattern
+    let inFavSection = false;
+    allTreeItems.forEach(item => {
+      const titleAttr = item.getAttribute('title') || '';
+      const folderMatch = titleAttr.match(/^(.+?) - \d+ items/);
+      if (!folderMatch) {
+        inFavSection = (titleAttr === 'Favorites');
+        return;
+      }
+      const name = folderMatch[1].trim();
+      if (!name || name === 'Favorites' || name === 'Folders') return;
+      if (inFavSection) {
+        favorites.add(name);
+      } else {
+        others.add(name);
+      }
+    });
+    favorites.forEach(f => others.delete(f));
+  }
 
   return {
     favorites: Array.from(favorites).sort(),
