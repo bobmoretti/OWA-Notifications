@@ -235,7 +235,8 @@ async function performScan(isAuto = false) {
       return u.includes("/owa/") ||
         u.includes("outlook.live.com") ||
         u.includes("outlook.office365.com") ||
-        u.includes("outlook.office.com");
+        u.includes("outlook.office.com") ||
+        u.includes("outlook.cloud.microsoft");
     });
 
     if (tabs.length === 0) {
