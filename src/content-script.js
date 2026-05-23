@@ -281,7 +281,7 @@ function getUnreadFolders() {
         // New Outlook (outlook.cloud.microsoft): title attr on treeitem itself
         // e.g. "Inbox - 397 items (384 unread)" or "Sent Items - 0 items"
         const titleAttr = item.getAttribute('title') || '';
-        const m = titleAttr.match(/^(.+?) - \d+ items(?: \((\d+) unread\))?$/);
+        const m = titleAttr.match(/^(.+?) - \d+ items?(?: \((\d+) unread\))?$/);
         if (m) {
           name = m[1].trim();
           count = m[2] ? parseInt(m[2], 10) : 0;
@@ -494,7 +494,7 @@ function scanFolders() {
     let inFavSection = false;
     allTreeItems.forEach(item => {
       const titleAttr = item.getAttribute('title') || '';
-      const folderMatch = titleAttr.match(/^(.+?) - \d+ items/);
+      const folderMatch = titleAttr.match(/^(.+?) - \d+ items?/);
       if (!folderMatch) {
         inFavSection = (titleAttr === 'Favorites');
         return;

@@ -248,16 +248,30 @@ async function performScan(isAuto = false) {
       return;
     }
 
-    const response = await browser.tabs.sendMessage(tabs[0].id, { cmd: "CMD_SCAN_FOLDERS" });
+    // Scan all matching tabs and merge results (supports multiple OWA instances simultaneously)
+    const allFavorites = new Set();
+    const allOthers = new Set();
+    let anyResponse = false;
 
-    if (response && response.result) {
-      const { favorites, others } = response.result;
-
-      if (favorites.length > 0 || others.length > 0) {
-        renderDetectedFolders(favorites, others);
-      } else {
-        detectedContainer.textContent = "No specific folders found.";
+    for (const tab of tabs) {
+      try {
+        const response = await browser.tabs.sendMessage(tab.id, { cmd: "CMD_SCAN_FOLDERS" });
+        if (response && response.result) {
+          anyResponse = true;
+          response.result.favorites.forEach(f => allFavorites.add(f));
+          response.result.others.forEach(f => allOthers.add(f));
+        }
+      } catch (e) {
+        log("Scan failed for tab", tab.id, e);
       }
+    }
+
+    allFavorites.forEach(f => allOthers.delete(f));
+
+    if (allFavorites.size > 0 || allOthers.size > 0) {
+      renderDetectedFolders(Array.from(allFavorites).sort(), Array.from(allOthers).sort());
+    } else if (anyResponse) {
+      detectedContainer.textContent = "No specific folders found. Try navigating to Mail view.";
     } else {
       detectedContainer.textContent = "No folders detected. Try navigating to Mail view.";
     }

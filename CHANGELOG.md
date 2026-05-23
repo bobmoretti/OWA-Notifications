@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.5] - 2026-05-23
+
+### Fixed
+- Subfolders on new Outlook (`outlook.cloud.microsoft`) now detected — Microsoft uses singular "1 item" instead of "1 items", regex updated to handle both
+- Refresh Folders now scans **all** open OWA/Outlook tabs simultaneously and merges results — supports running old OWA and new Outlook side by side without conflict
+
 ## [2.1.4] - 2026-05-23
 
 ### Fixed
