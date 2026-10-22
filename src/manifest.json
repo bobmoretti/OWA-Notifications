@@ -26,7 +26,8 @@
         "https://outlook.live.com/mail/*",
         "https://outlook.office365.com/mail/*",
         "https://outlook.office.com/mail/*",
-        "https://outlook.cloud.microsoft/mail/*"
+        "https://outlook.cloud.microsoft/mail/*",
+        "https://outlook.office365.us/mail/*"
       ],
       "js": [
         "content-script.js"
@@ -51,4 +52,4 @@
       "strict_min_version": "142.0"
     }
   }
-}
+}
